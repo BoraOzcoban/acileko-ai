@@ -83,7 +83,6 @@ def train_and_evaluate_models(data):
         y_pred = model.predict(X_test_scaled)
         mse = np.mean((y_test - y_pred) ** 2)
         results[model_name] = mse
-        print(f"{model_name} - Mean Squared Error: {mse:.2f}")
 
     return models, scaler
 
@@ -224,7 +223,6 @@ def simulate_stair_usage(data):
             data.loc[mask, 'Large_Stairs'] += data.loc[mask, 'Number_of_People']
             data.loc[mask, 'Small_Stairs'] -= data.loc[mask, 'Number_of_People']
 
-    # Replace negative stair usage values with 0
     data['Large_Stairs'] = data['Large_Stairs'].clip(lower=0)
     data['Small_Stairs'] = data['Small_Stairs'].clip(lower=0)
 
@@ -285,26 +283,18 @@ def calculate_stair_speed(densities):
 
 
 def calculate_evacuation_time_for_floor_1(stair_densities, stair_speeds, stair_usage):
-    """
-    Calculate evacuation time for floor 1 on Mondays at 10:20.
-    """
-    # Extract densities
     large_stairs_density = stair_densities['Large Stairs Density (Floor 1, 2025)']
     small_stairs_density = stair_densities['Small Stairs Density (Floor 1, 2025)']
 
-    # Extract speeds
     speed_large_stair = stair_speeds['Speed (Large Stairs Density (Floor 1, 2025))']
     speed_small_stair = stair_speeds['Speed (Small Stairs Density (Floor 1, 2025))']
 
-    # Extract the number of people on each type of stair
     number_on_large_stair = stair_usage["Large_Stairs_Floor"]
     number_on_small_stair = stair_usage["Small_Stairs_Floor"]
 
-    # Calculate evacuation times
     time_large_stair = (9 / speed_large_stair) * (number_on_large_stair / (2.3 * large_stairs_density))
     time_small_stair = (9 / speed_small_stair) * (number_on_small_stair / (2 * small_stairs_density))
 
-    # Calculate total evacuation time
     total_evacuation_time = max(time_large_stair.mean(), time_small_stair.mean())
     return total_evacuation_time
 
@@ -369,17 +359,19 @@ if __name__ == "__main__":
 
     densities_2025_floor_1 = calculate_stair_density_for_2025_floor_1(stair_usage_2025)
 
-    # Calculate stair speeds using the densities
     stair_speeds_2025 = calculate_stair_speed(densities_2025_floor_1)
 
-    print("\nStair Speeds for Floor 1 on Monday at 10:20 (2025 Predictions):")
-    print(stair_speeds_2025)
+    print("Speed on the large stairs for Floor 1 on Monday at 10:20 according to the 2025 Predictions):")
+    print(stair_speeds_2025['Speed (Large Stairs Density (Floor 1, 2025))'])
+    print("Speed on the small stairs for Floor 1 on Monday at 10:20 according to the 2025 Predictions):")
+    print(stair_speeds_2025['Speed (Small Stairs Density (Floor 1, 2025))'])
 
-    # Display the results
-    print("Stair Densities for Floor 1 on Monday at 10:20 (2025 Predictions):")
-    print(densities_2025_floor_1)
+    print("Stair density on the large stairs for Floor 1 on Monday at 10:20 according to the 2025 Predictions):")
+    print(densities_2025_floor_1['Large Stairs Density (Floor 1, 2025)'])
+    print("Stair density on the small stairs for Floor 1 on Monday at 10:20 according to the 2025 Predictions):")
+    print(densities_2025_floor_1['Small Stairs Density (Floor 1, 2025)'])
 
     evacuation_time = calculate_evacuation_time_for_floor_1(densities_2025_floor_1, stair_speeds_2025, stair_usage_2025)
 
-    print("\nTotal Evacuation Time for Floor 1 on Monday at 10:20 (2025 Predictions):")
+    print("\nTotal Evacuation Time in seconds for Floor 1 on Monday at 10:20 (2025 Predictions):")
     print(evacuation_time)
